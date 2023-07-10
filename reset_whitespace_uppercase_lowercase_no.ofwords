@@ -1,0 +1,39 @@
+import { useState } from "react";
+const App = () => {
+    const[data,setData] = useState("")
+    const[wordcount,setwordcount]=useState("0")
+     const chngarea = (e) => {
+  setData(e.target.value);
+};
+    const  rst=()=>{
+        setData("");
+    }
+    const uprcse=()=>{
+        setData(data.toUpperCase())
+    }
+    const lwrcse=()=>{
+        setData(data.toLowerCase())
+    }
+    const whtsps=()=>{
+        setData(data.replace(/\s+/g, ' '))
+    }
+    const nwrds=()=>{
+        if(data===''){
+            setwordcount("0");
+        }else{
+        setwordcount(data.replace(/\s+/g, ' ').split(' ').length)}
+    }
+    return(
+        <>
+        <textarea name="area" id="textarea" cols="30" rows="10" onChange={chngarea} value={data}></textarea>
+        <br />
+        <button onClick={rst}>reset</button>
+        <button onClick={whtsps}>whitespaces</button>
+        <button onClick={uprcse}>uppercase</button>
+        <button onClick={lwrcse}>lowercase</button>
+        <button onClick={nwrds}>No. of words</button>
+        {wordcount}
+        </>
+    )
+}
+export default App;
