@@ -1,0 +1,46 @@
+
+//upload files using multer middleware
+
+const storage = multer.diskStorage({
+  destination: './public/images/',
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const originalExtension = path.extname(file.originalname);
+    const modifiedFilename = uniqueSuffix + originalExtension;
+    cb(null, modifiedFilename);
+  },
+});
+const fileFilter = function (req, file, cb) {
+  const allowedTypes = ['.pdf', '.doc', '.docx'];
+  const fileExtension = path.extname(file.originalname).toLowerCase();
+  if (allowedTypes.includes(fileExtension)) {
+    cb(null, true); // Accept the file
+  } else {
+  cb('error');
+  }
+};
+const upload = multer({ storage: storage, fileFilter: fileFilter });
+const upload_resume = upload.single('resume');  
+
+
+
+
+app.post('/add_student', (req, res) => {
+  upload_resume(req, res, async (err) => {
+    if (err) {
+       return res.status(500).json({message:"file type should be pdf or doc"});
+    }
+    try{
+    const { name, phone,email,experience} = req.body;
+    const uploadfile = req.file?.filename;
+    const sql_query = `insert into student(student_name,student_phone,email,image,experience) values('${name}','${phone}','${email}','${uploadfile}','${experience}')`;
+    student_database.query(sql_query, (err, result) => {
+      if (err) { res.status(500).json({message:"error in db"});}
+      else {  res.status(200).json({message:"Created"}); }
+    })  
+  }
+    catch(e){
+       res.status(500).json({message:"internal error"});
+    }
+  })
+})
