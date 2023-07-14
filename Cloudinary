@@ -1,0 +1,33 @@
+import fileUpload from 'express-fileupload';
+
+app.use(fileUpload({
+    useTempFiles: true                          
+}));
+
+
+
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+    cloud_name: 'dyfmogktp',
+    api_key: '585996124316648',
+    api_secret: 'process.env.API_SECRET',
+});
+
+export const addDetails = (req: any, res: any) => {
+    console.log(req.body);
+    if (!req.files || !req.files.photo) {
+        res.status(400).json({ error: 'No file uploaded' });
+        return;
+    }
+    const file = req.files.photo;
+    cloudinary.uploader.upload(file.tempFilePath, (err: any, result: any) => {
+        if (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Upload failed' });
+        } else {
+            console.log(result);
+            res.json(result);
+        }
+    });
+};
