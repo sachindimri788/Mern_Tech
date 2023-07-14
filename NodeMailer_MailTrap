@@ -1,0 +1,27 @@
+export const sendPasswordEmail=(async(emailId:any) =>{
+      var transporter = nodemailer.createTransport({
+          host: "sandbox.smtp.mailtrap.io",
+          port: 2525,
+          auth: {
+            user: process.env.USER,
+            pass: process.env.PASSWORD
+          }
+        });
+  
+      const password=Math.floor(1000+Math.random()*1000);
+        
+
+      var mailOptions={
+         to: emailId,
+         subject: "Password for registration is: ",
+         html: "<h3>Hello, Your Password is </h3>"  + "<h1 style='font-weight:bold;'>" + password +"</h1>" // html body
+       };
+       transporter.sendMail(mailOptions, (error:any, info:any) => {
+          if (error) {
+            console.log(error);
+            return;
+          }
+      });
+      return password;
+     
+  })
