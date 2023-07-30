@@ -1,0 +1,59 @@
+export const sendPasswordEmail=(async(emailId:any) =>{
+      var transporter = nodemailer.createTransport({
+          host: "sandbox.smtp.mailtrap.io",
+          port: 2525,
+          auth: {
+            user: process.env.USER,
+            pass: process.env.PASSWORD
+          }
+        });
+  
+      const password=Math.floor(1000+Math.random()*1000);
+        
+
+      var mailOptions={
+         to: emailId,
+         subject: "Password for registration is: ",
+         html: "<h3>Hello, Your Password is </h3>"  + "<h1 style='font-weight:bold;'>" + password +"</h1>" // html body
+       };
+       transporter.sendMail(mailOptions, (error:any, info:any) => {
+          if (error) {
+            console.log(error);
+            return;
+          }
+      });
+      return password;
+     
+  })
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const Sib = require('sib-api-v3-sdk')
+
+async function sendMail(email,id) {
+    const result={}
+    const client = Sib.ApiClient.instance
+    const apiKey = client.authentications['api-key']
+    apiKey.apiKey = process.env.EMAIL_API_KEY;
+
+    const tranEmailApi = new Sib.TransactionalEmailsApi()
+    const sender = {
+        email: process.env.EMAIL,
+        name: 'Sachin Dimri',
+    }
+    const receivers = [
+        {
+            email: email,
+        },
+    ]
+
+    await tranEmailApi.sendTransacEmail({
+        sender,
+        to: receivers,
+        subject: 'Reset Password',
+        htmlContent: `<h3>Hi! We got the request from you for reset the password. Here is the link below >>></h3>
+        <a href="http://127.0.0.1:5500/resetPassword.html?id=${id}"> Click Here</a>`,
+    })
+    return result.message="The reset link has been sent to your registered email.";
+}
+module.exports = sendMail;
