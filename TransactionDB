@@ -1,0 +1,45 @@
+async function performTwoDbOperations(id, userId, email) {
+  try {
+    // Start a transaction
+    await dbConnection.beginTransaction();
+
+    // Save the current state of the database for rollback
+    const databaseSnapshot = await userRepo.getSnapshot(id, userId);
+
+    // Perform the first database operation
+    await userRepo.saveIdsInResetPassword(id, userId);
+
+    // Perform the second database operation
+    await userRepo.updateEmail(email);
+
+    // Send the email outside the transaction to separate the concerns//
+    await sendMail(email, id);
+
+    // Commit the transaction if both operations are successful
+    await dbConnection.commit();
+
+    result.message = "The reset link has been sent to your registered email.";
+  } catch (error) {
+    // If any operation fails, perform a rollback on the database
+    await dbConnection.rollback();
+    result.message = "Failed to complete the reset process.";
+  } finally {
+    // Always remember to release the database connection
+    await dbConnection.release();
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+let transaction;
+        // try {
+          transaction = await sequelize.transaction();
+          await expenseRepo.addExpense(expenseInfo, userId, transaction);
+          await expenseRepo.updateExpenseInUserTable(userId, transaction);
+          return await transaction.commit();
+        // } catch (error) {
+        //   if (transaction) {
+        //      await transaction.rollback();
+        //   }
+        //   throw error;
+        // }
